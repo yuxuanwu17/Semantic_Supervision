@@ -2,7 +2,13 @@
 
 ## Setup
 
-Create python 3.7 virtual environment and in the current folder, run setup.sh
+
+Create python 3.7 virtual environment and in the current folder, run
+```shell
+sh setup.sh
+sh download.sh
+python3 init.py
+```
 
 ## Run
 ### Configuration
