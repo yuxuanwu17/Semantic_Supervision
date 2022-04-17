@@ -1,0 +1,36 @@
+{
+    "general_args":
+        {
+            "cache_dir": "./data_cache",
+            "split_seed": 42,
+            "val_size": 0.2,
+            "num_workers": 0,
+            "run_test": false
+        },
+    "label_model_args":
+        {
+            "label_model": "prajjwal1/bert-small"
+        },
+    "label_data_args":
+        {
+            "label_tokenizer": "prajjwal1/bert-small",
+            "train_label_json": "./class_descrs/cifar/combined_cifar100_manual_train.labels",
+            "val_label_json": "./class_descrs/cifar/combined_cifar100_manual_val.labels",
+            "label_max_len": 128
+        },
+    "train_args":
+        {
+            "num_epochs": 10,
+            "log_every_n_steps": 1000,
+            "train_batch_size": 64,
+            "val_batch_size": 5,
+            "pretrained_model": true,
+            "tune_label_model": true
+        },
+    "optimizer_args":
+        {
+            "lr": 1e-4,
+            "adam_epsilon": 1e-6,
+            "weight_decay": 0.01
+        }
+}
