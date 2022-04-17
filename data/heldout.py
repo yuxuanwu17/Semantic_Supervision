@@ -10,34 +10,8 @@ from torchvision import transforms
 from torchvision.datasets.vision import StandardTransform
 
 from data.utils import LabelDatasetManager
-from data.core import Cifar100DatasetManagerCore
-
-CifarHeldoutDataConfig = {
-    'val_names': (
-        "streetcar",
-        "lamp",
-        "forest",
-        "otter",
-        "house",
-        "crab",
-        "crocodile",
-        "orchid",
-        "rabbit",
-        "man",
-    ),
-    'test_names': (
-        "motorcycle",
-        "pine_tree",
-        "bottle",
-        "trout",
-        "chair",
-        "butterfly",
-        "chimpanzee",
-        "orange",
-        "leopard",
-        "possum",
-    )
-}
+from data.core import AWADataset, AWADatasetManagerCore, Cifar100DatasetManagerCore
+from data.configs import *
 
 class Cifar100HeldoutDatasetManager(Cifar100DatasetManagerCore):
     def __init__(
@@ -113,12 +87,45 @@ class Cifar100HeldoutDatasetManager(Cifar100DatasetManagerCore):
         train_target_transform = lambda x: self.train_class_label.str2int(self.all_class_label.int2str(x))
         val_target_transform = lambda x: self.val_class_label.str2int(self.all_class_label.int2str(x))
         
+        train_dataset.dataset.transform = self.train_transform
+        train_dataset.dataset.target_transform = train_target_transform
         train_dataset.dataset.transforms = StandardTransform(
             transform=self.train_transform, target_transform=train_target_transform
         )
+
+        val_dataset.dataset.transform = self.eval_transform
+        val_dataset.dataset.target_transform = val_target_transform
         val_dataset.dataset.transforms = StandardTransform(
             transform=self.eval_transform, target_transform=val_target_transform
         )
 
         self.input_dataset['train'] = train_dataset
         self.input_dataset['val'] = val_dataset
+
+
+class AWAHeldoutDatasetManager(AWADatasetManagerCore):
+    def __init__(self, general_args, label_model_args, label_data_args, train_args):
+        super().__init__(general_args, label_model_args, label_data_args, train_args)
+        self.init_label_config()
+
+    def init_label_config(self):
+        self.train_classes = AWA_TRAIN_CLASSES
+        self.val_classes = AWA_TEST_CLASSES if self.general_args['run_test'] else AWA_VAL_CLASSES
+
+        self.train_class_label = ClassLabel(names=self.train_classes)
+        self.val_class_label = ClassLabel(names=self.val_classes)
+
+    def gen_input_dataset(self):
+        self.input_dataset['train'] = AWADataset(
+            class_label=self.train_class_label,
+            transform=self.train_transform,
+            root=self.img_root
+        )
+
+        self.input_dataset['val'] = AWADataset(
+            class_label=self.val_class_label,
+            transform=self.eval_transform,
+            root=self.img_root
+        )
+        
+

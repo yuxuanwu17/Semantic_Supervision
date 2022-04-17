@@ -24,11 +24,16 @@ DatasetManagerMapping = {
         'base': Cifar100DatasetManager,
         'heldout': Cifar100HeldoutDatasetManager,
         'superclass': Cifar100DSuperClassDatasetManager
+    },
+    'awa': {
+        'base': AWADatasetManager,
+        'heldout': AWAHeldoutDatasetManager
     }
 }
 
 ModelMapping = {
-    'cifar': ResNetSemSup
+    'cifar': ResNetSemSup,
+    'awa': ResNetSemSup
 }
 
 def train(model, optimizer, criterion, input_loader, label_loader, scheduler, epoch, num_epoch):
