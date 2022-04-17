@@ -1,11 +1,18 @@
 {
+    "meta": 
+        {
+            "dataset": "cifar",
+            "task": "cifar",
+            "scene": "heldout",
+            "ckpt_dir": "./ckpt/",
+            "name": "cifar_semsup_scene2"
+        },
     "general_args":
         {
             "cache_dir": "./data_cache",
             "split_seed": 42,
             "val_size": 0.2,
-            "num_workers": 0,
-            "run_test": false
+            "num_workers": 0
         },
     "label_model_args":
         {

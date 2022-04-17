@@ -1,7 +1,11 @@
+from argparse import ArgumentParser
 import json
 import os
+from pathlib import Path
 
-from data.base import Cifar100DatasetManager
+from data.base import *
+from data.heldout import *
+from data.superclass import *
 from model.vision import ResNetSemSup
 from torch.optim import AdamW
 import torch
@@ -14,6 +18,18 @@ import time
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # device = 'cpu'
 print("Device: ", device)
+
+DatasetManagerMapping = {
+    'cifar': {
+        'base': Cifar100DatasetManager,
+        'heldout': Cifar100HeldoutDatasetManager,
+        'superclass': Cifar100DSuperClassDatasetManager
+    }
+}
+
+ModelMapping = {
+    'cifar': ResNetSemSup
+}
 
 def train(model, optimizer, criterion, input_loader, label_loader, scheduler, epoch, num_epoch):
     model.train()
@@ -94,19 +110,38 @@ def validate(model, input_loader, label_loader, criterion):
             total_loss, val_acc, end - start
     ))
 
+    return total_loss, val_acc
 
 
 if __name__ == '__main__':
-    with open('./config/cifar/scene1.json', 'r') as f:
+
+    parser = ArgumentParser()
+    parser.add_argument('--run_test', type=bool, default=False,
+                                    help='True for test, False for train')
+    parser.add_argument('--ckpt_path', type=str, default='',
+                                    help='Path of checkpoint used for test, only effective when run_test is True')
+    parser.add_argument('--config', type=str, default='./config/cifar/scene1.json',
+                                    help='configuration file to use')
+    args = parser.parse_args()
+
+    config_file = args.config
+    with open(config_file, 'r') as f:
         config = json.load(f)
 
     general_args = config['general_args']
+    general_args['run_test'] = args.run_test
     label_model_args = config['label_model_args']
     label_data_args = config['label_data_args']
     train_args = config['train_args']
     optimizer_args = config['optimizer_args']
 
-    dataset_manager = Cifar100DatasetManager(
+    dataset = config['meta']['dataset']
+    scene = config['meta']['scene']
+    task = config["meta"]["task"]
+    dataset_manager_class = DatasetManagerMapping[dataset][scene]
+    model_class = ModelMapping[task]
+
+    dataset_manager = dataset_manager_class(
                         general_args, label_data_args, label_data_args, train_args)
     dataset_manager.gen_dataset()
     train_data_loader = dataset_manager.train_dataloader
@@ -117,7 +152,7 @@ if __name__ == '__main__':
     val_input_loader, val_label_loader = val_data_loader['input_loader'], \
                                          iter(val_data_loader['label_loader'])
 
-    model = ResNetSemSup(train_args, label_model_args, 'cifar').to(device)
+    model = model_class(train_args, label_model_args, 'cifar').to(device)
 
     num_epochs = train_args['num_epochs']
     lr = optimizer_args['lr']
@@ -127,11 +162,33 @@ if __name__ == '__main__':
     optimizer = AdamW(model.parameters(), lr=lr, eps=eps, weight_decay=weight_decay)
     criterion = nn.CrossEntropyLoss()
 
-    num_epochs = 1
+    if args.run_test:
+        assert Path(args.ckpt_path).is_file()
 
-    for epoch in range(num_epochs):
-        train(model, optimizer, criterion, train_input_loader, train_label_loader, None, epoch, num_epochs)
-        validate(model, val_input_loader, val_label_loader, criterion)
+        checkpoint = torch.load(args.ckpt_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        val_loss = checkpoint['val_loss']
+        val_acc = checkpoint['val_acc']
+        print('--------------Test-------------')
+        print('Validation loss: {}, validation acc: {}'.format(val_loss, val_acc))
+        test_loss, test_acc = validate(
+            model, val_input_loader, val_label_loader, criterion
+        )
+        print('Test loss: {}, test acc: {}'.format(test_loss, test_acc))
+        
+    else:
+        ckpt_path = config["meta"]["ckpt_dir"] + config["meta"]["name"]
+        for epoch in range(num_epochs):
+            train(model, optimizer, criterion, train_input_loader, train_label_loader, None, epoch, num_epochs)
+            val_loss, val_acc = validate(model, val_input_loader, val_label_loader, criterion)
+            cur_ckpt_path = ckpt_path + '_{}.pt'.format(epoch)
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'val_loss': val_loss,
+                'val_acc': val_acc
+            }, cur_ckpt_path)
+
 
 
 
