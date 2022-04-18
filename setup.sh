@@ -6,3 +6,4 @@ pip install datasets==1.13.2
 pip install scikit-learn==1.0
 pip install jsonargparse==4.1.0
 pip install wandb==0.12.9
+pip install tqdm==4.63.0
