@@ -6,7 +6,7 @@ from pathlib import Path
 from data.base import *
 from data.heldout import *
 from data.superclass import *
-from model.vision import ResNetSemSup, ResNetSemSupMLP
+from model.vision import ResNetSemSup
 from torch.optim import AdamW
 import torch
 import torch.nn as nn

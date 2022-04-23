@@ -38,7 +38,7 @@ class ResNetSemSup(nn.Module):
             self.label_model_hidden = self.label_model.config.hidden_size
 
         # score function args
-        self.score_function = score_function_args['score_function'] if 'score_function' in score_function_args else 'base'
+        self.score_function = score_function_args['score_function'] if score_function_args is not None else 'base'
 
         if self.task.lower() == 'cifar':
             self.input_model.conv1 = nn.Conv2d(
