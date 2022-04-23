@@ -11,7 +11,7 @@ from torch.optim import AdamW
 import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score
-
+import wandb
 from tqdm import tqdm
 import time
 
@@ -81,6 +81,9 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
     print('Epoch: {}/{}: Train Loss: {:.04f}, Accuracy: {:.04f}, Learning Rate: {:.04f}, Total time: {:.02f}'.format(
         epoch + 1, num_epoch, total_loss, accuracy, optimizer.param_groups[0]['lr'], end - start
     ))
+
+    return total_loss, accuracy, optimizer.param_groups[0]['lr']
+
 
 def validate(model, input_loader, label_loader, criterion):
     model.eval()
@@ -171,6 +174,14 @@ if __name__ == '__main__':
     optimizer = AdamW(model.parameters(), lr=lr, eps=eps, weight_decay=weight_decay)
     criterion = nn.CrossEntropyLoss()
 
+    # set wandb
+    model_id = config["meta"]["ckpt_dir"] + config["meta"]["name"]
+    wandb.init(project="Semantic_Supervision_Impl", entity="saltedfish", name=model_id)
+    wandb.config = {
+        "learning_rate": lr,
+        "epochs": num_epochs,
+    }
+
     if args.run_test:
         assert Path(args.ckpt_path).is_file()
 
@@ -188,8 +199,12 @@ if __name__ == '__main__':
     else:
         ckpt_path = config["meta"]["ckpt_dir"] + config["meta"]["name"]
         for epoch in range(num_epochs):
-            train(model, optimizer, criterion, train_input_loader, train_label_loader, None, epoch, num_epochs)
+            train_loss, train_acc, train_lr = train(model, optimizer, criterion, train_input_loader, train_label_loader, None, epoch, num_epochs)
             val_loss, val_acc = validate(model, val_input_loader, val_label_loader, criterion)
+
+            wandb.log({"epoch": epoch, "train loss:": train_loss, "train acc": train_acc, "val loss:": val_loss,
+                       "val acc": val_acc, "lr": train_lr})
+
             cur_ckpt_path = ckpt_path + '_{}.pt'.format(epoch)
             torch.save({
                 'epoch': epoch,
