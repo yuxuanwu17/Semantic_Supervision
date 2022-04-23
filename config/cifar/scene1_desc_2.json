@@ -5,7 +5,7 @@
             "task": "cifar",
             "scene": "base",
             "ckpt_dir": "./ckpt/",
-            "name": "cifar_semsup_scene1_desc_multi"
+            "name": "cifar_semsup_scene1_desc_2"
         },
     "general_args":
         {

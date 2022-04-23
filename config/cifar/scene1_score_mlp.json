@@ -5,7 +5,7 @@
             "task": "cifar",
             "scene": "base",
             "ckpt_dir": "./ckpt/",
-            "name": "cifar_semsup_scene1_mlp"
+            "name": "cifar_semsup_scene1_score_mlp"
         },
     "general_args":
         {
