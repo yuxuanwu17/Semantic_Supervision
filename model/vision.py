@@ -70,7 +70,7 @@ class ResNetSemSupMLP(nn.Module):
             label_model_args:
                 label_model: str
     '''
-    def __init__(self, train_args: dict, label_model_args: dict, task: str):
+    def __init__(self, train_args: dict, label_model_args: dict, score_function_args: dict, task: str):
         super().__init__()
         self.train_args = train_args
         self.label_model_args = label_model_args
@@ -89,15 +89,19 @@ class ResNetSemSupMLP(nn.Module):
             self.input_model.fc.in_features, self.label_model.config.hidden_size, bias=False
         )
 
+        self.linear_hidden_1 = score_function_args['mlp_hidden_1']
+        self.linear_hidden_2 = score_function_args['mlp_hidden_2']
+        self.linear_dropout = score_function_args['mlp_dropout_rate']
+
         self.score_function_mlp = nn.Sequential(
-            nn.Linear(1024, 1024),
+            nn.Linear(1024, self.linear_hidden_1),
             nn.ReLU(),
-            nn.Dropout(0),
+            nn.Dropout(self.linear_dropout),
             nn.ReLU(),
-            nn.Linear(1024, 1024),
+            nn.Linear(self.linear_hidden_1, self.linear_hidden_2),
             nn.ReLU(),
-            nn.Dropout(0),
-            nn.Linear(1024, 1)
+            nn.Dropout(self.linear_dropout),
+            nn.Linear(self.linear_hidden_2, 1)
         )
             
     def forward(self, batch):
