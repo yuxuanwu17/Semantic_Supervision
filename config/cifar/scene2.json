@@ -30,7 +30,7 @@
             "num_epochs": 10,
             "log_every_n_steps": 1000,
             "train_batch_size": 64,
-            "val_batch_size": 16,
+            "val_batch_size": 5,
             "pretrained_model": true,
             "tune_label_model": true
         },
