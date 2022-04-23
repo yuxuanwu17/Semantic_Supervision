@@ -65,6 +65,8 @@ class ResNetSemSup(nn.Module):
                                             nn.Dropout(self.linear_dropout),
                                             nn.Linear(self.linear_hidden_2, 1)
                                         )
+            print('Score function architecture:')
+            print(self.score_function_layer)
             
     def forward(self, batch):
         # batch: (x, label)
@@ -79,7 +81,7 @@ class ResNetSemSup(nn.Module):
                 if self.multi_description_aggregation == 'concat':
                     label_rep = label_rep.reshape(-1, self.label_model_hidden) # (n_class, num_description * hidden_size) -> (n_class, label_model_hidden_size)
                 if self.multi_description_aggregation == 'mean':
-                    label_rep = label_rep.reshape(-1, self.num_description, self.label_model_hidden // self.num_description)
+                    label_rep = label_rep.reshape(-1, self.num_description, self.label_model_hidden)
                     label_rep = torch.mean(label_rep, axis=(1)) # (n_class, hidden_size) -> (n_class, label_model_hidden_size)
 
             label_rep = label_rep.t() # (label_model_hidden_size, n_class)
@@ -99,6 +101,6 @@ class ResNetSemSup(nn.Module):
                 combine_rep = torch.cat([input_rep_repeat, label_rep_repeat], dim=2)
                 combine_rep = combine_rep.reshape(-1, 2 * hidden_size)
                 
-                logits = self.score_function_mlp(combine_rep).reshape((batch_size, -1))
+                logits = self.score_function_layer(combine_rep).reshape((batch_size, -1))
 
         return logits

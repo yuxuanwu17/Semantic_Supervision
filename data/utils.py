@@ -42,7 +42,7 @@ class LabelDataset(IterableDataset):
             
             # key: attention_mask, input_ids, token_type_ids
             for choice_item in choice_list:
-                for k, v in self.dataset[choice_item].items():
+                for k, v in self.dataset[int(choice_item)].items():
                     bert_input[k].append(v)
 
         # attention_mask, input_ids, token_type_ids: (num_description * num_classes)
