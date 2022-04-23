@@ -15,7 +15,7 @@ class ResNetSemSup(nn.Module):
             label_model_args:
                 label_model: str
     '''
-    def __init__(self, train_args: dict, label_model_args: dict, task: str):
+    def __init__(self, train_args: dict, label_model_args: dict, score_function_args: dict, task: str):
         super().__init__()
         self.train_args = train_args
         self.label_model_args = label_model_args
@@ -67,6 +67,10 @@ class ResNetSemSupMLP(nn.Module):
             train_args:
                 pretrained_model: bool
                 tune_label_model: bool
+            score_function_args: 
+                mlp_hidden_1: int
+                mlp_hidden_2: int
+                mlp_dropout_rate: float
             label_model_args:
                 label_model: str
     '''
