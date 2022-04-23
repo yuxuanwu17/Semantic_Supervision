@@ -8,6 +8,8 @@ Create python 3.7 virtual environment and in the current folder, run
 sh setup.sh
 sh download.sh
 python3 init.py
+mkdir ckpt
+mkdir data_cache
 ```
 
 ## Run

@@ -45,6 +45,16 @@ class ResNetSemSup(nn.Module):
             label_rep = self.label_model(**label_batch).pooler_output # (n_class, hidden_size)
             label_rep = label_rep.t() # (hidden_size, n_class)
         
+        # label_rep (batch_size, hidden_size)
+        batch_size, hidden_size = input_rep.shape[0], input_rep.shape[1]
+        n_class = label_rep.shape[1]
+
+        input_rep_repeat = input_rep.unsqueeze(1).repeat(1, n_class, 1)
+        label_rep_repeat = label_rep.t().unsqueeze(0).repeat(batch_size, 1, 1)
+
+        combine_rep = torch.cat([input_rep_repeat, label_rep_repeat], dim=2)
+        combine_rep = combine_rep.reshape(-1, 2 * hidden_size)
+
         # computing scores
         logits = input_rep @ label_rep
 
