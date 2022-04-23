@@ -39,8 +39,7 @@
             "train_batch_size": 64,
             "val_batch_size": 5,
             "pretrained_model": true,
-            "tune_label_model": true,
-            "scoring_function": "mlp"
+            "tune_label_model": true
         },
     "optimizer_args":
         {
