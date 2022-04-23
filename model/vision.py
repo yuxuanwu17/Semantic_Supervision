@@ -61,7 +61,7 @@ class ResNetSemSup(nn.Module):
         return logits
     
 
-class ResNetSemSup(nn.Module):
+class ResNetSemSupMLP(nn.Module):
     '''
         input:
             train_args:
