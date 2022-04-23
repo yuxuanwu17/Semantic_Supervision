@@ -163,9 +163,6 @@ if __name__ == '__main__':
 
     model = model_class(train_args, label_model_args,  score_function_args, 'cifar').to(device)
 
-    print('Model Architecture:')
-    print(model)
-
     num_epochs = train_args['num_epochs']
     lr = optimizer_args['lr']
     eps = optimizer_args['adam_epsilon']
