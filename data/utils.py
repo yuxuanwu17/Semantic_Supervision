@@ -11,16 +11,25 @@ from collections import defaultdict
 class LabelDataset(IterableDataset):
     '''
         input:
-            dataset:
+            dataset(DatasetDict)
             class_label(ClassLabel object)
             label_to_idx(dict)
+            num_description(int) default 1
+                how many descriptions are used for one class in each batch
+            multi_description_aggregation(str)
+                (only valid when num_description is larger than 1)
+                'concat', 'average', 'max'
+                how to aggregate multiple description into one embedding
+               
+
     '''
-    def __init__(self, dataset: DatasetDict, class_label: ClassLabel, label_to_idx: dict):
+    def __init__(self, dataset: DatasetDict, class_label: ClassLabel, label_to_idx: dict, num_description: int=1):
         super().__init__()
         self.label_to_idx = label_to_idx
         self.class_label = class_label
         self.dataset = dataset
         self.num_classes = class_label.num_classes
+        self.num_description = num_description
     
     def __next__(self):
         '''
@@ -29,12 +38,14 @@ class LabelDataset(IterableDataset):
         bert_input = defaultdict(list)
         for i in range(self.num_classes):
             label = self.class_label.int2str(i)
-            choice = int(np.random.choice(self.label_to_idx[label]))
+            choice_list = np.random.choice(self.label_to_idx[label], size=self.num_description, replace=False)
             
             # key: attention_mask, input_ids, token_type_ids
-            for k, v in self.dataset[choice].items():
-                bert_input[k].append(v)
+            for choice_item in choice_list:
+                for k, v in self.dataset[choice_item].items():
+                    bert_input[k].append(v)
 
+        # attention_mask, input_ids, token_type_ids: (num_description * num_classes)
         return {k: torch.stack(v) for k, v in bert_input.items()}
     
     def __iter__(self):
@@ -43,16 +54,22 @@ class LabelDataset(IterableDataset):
 class LabelDatasetManager:
     ''''
         input:
+            cache_dir(str)
             label_data_args(dict):
                 label_tokenizer,
                 train_label_json,
                 val_label_json
+            train_classes(ClassLabel)
+            val_classes(ClassLabel)
+            num_description(int): default 1
+            multi_description_aggregation(str):
     '''
     def __init__(
         self,
         cache_dir: str,
         label_data_args: dict,
-        train_classes: ClassLabel, val_classes: ClassLabel
+        train_classes: ClassLabel, val_classes: ClassLabel,
+        num_description: int=1, multi_description_aggregation: str='concat'
     ):
         self.cache_dir = cache_dir
         self.label_tokenizer = label_data_args['label_tokenizer']
@@ -61,6 +78,8 @@ class LabelDatasetManager:
         self.label_max_len = label_data_args['label_max_len']
         self.train_classes = train_classes
         self.val_classes = val_classes
+        self.num_description = num_description
+        self.multi_description_aggregation = multi_description_aggregation
 
         assert Path(self.train_label_json).is_file()
         assert Path(self.cache_dir).is_dir()
@@ -147,7 +166,7 @@ class LabelDatasetManager:
         
         dataset.set_format(type='torch', columns=keep_columns)
         
-        return LabelDataset(dataset, class_label, label_to_idx)
+        return LabelDataset(dataset, class_label, label_to_idx, num_description=self.num_description)
 
 
     def gen_label_dataset(self):

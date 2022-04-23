@@ -32,14 +32,8 @@ DatasetManagerMapping = {
 }
 
 ModelMapping = {
-    'cifar': {
-        'base': ResNetSemSup,
-        'mlp': ResNetSemSupMLP
-    },
-    'awa': {
-        'base': ResNetSemSup,
-        'mlp': ResNetSemSupMLP
-    }
+    'cifar': ResNetSemSup,
+    'awa': ResNetSemSup
 }
 
 def train(model, optimizer, criterion, input_loader, label_loader, scheduler, epoch, num_epoch):
@@ -153,9 +147,8 @@ if __name__ == '__main__':
     score_function_type = 'base'
 
     score_function_args = config['score_function_args'] if 'score_function_args' in config else None
-    score_function_type = 'base' if score_function_args is None else score_function_args['score_function']
 
-    model_class = ModelMapping[task][score_function_type]
+    model_class = ModelMapping[task]
 
     dataset_manager = dataset_manager_class(
                         general_args, label_data_args, label_data_args, train_args)
@@ -169,6 +162,9 @@ if __name__ == '__main__':
                                          iter(val_data_loader['label_loader'])
 
     model = model_class(train_args, label_model_args,  score_function_args, 'cifar').to(device)
+
+    print('Model Architecture:')
+    print(model)
 
     num_epochs = train_args['num_epochs']
     lr = optimizer_args['lr']

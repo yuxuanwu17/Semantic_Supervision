@@ -20,7 +20,8 @@ class Cifar100DatasetManagerCore:
         self.train_args = train_args
 
         self.cache_dir = self.general_args['cache_dir']
-
+        self.num_description = label_data_args['num_description'] if 'num_description' in label_data_args else 1
+        # self.multi_description_aggregation = label_data_args['multi_description_aggregation'] if 'multi_description_aggregation' in label_data_args else 'concat'
         self.load_label_meta()
 
         # input transform
@@ -71,7 +72,8 @@ class Cifar100DatasetManagerCore:
         # create label dataset manager
         self.label_dataset_manager = LabelDatasetManager(
             cache_dir=self.cache_dir, label_data_args=self.label_data_args,
-            train_classes=self.train_class_label, val_classes=self.val_class_label
+            train_classes=self.train_class_label, val_classes=self.val_class_label,
+            num_description=self.num_description
         )
         # generate label dataset
         self.label_dataset_manager.gen_label_dataset()
