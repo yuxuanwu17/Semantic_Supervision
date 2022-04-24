@@ -36,6 +36,7 @@ ModelMapping = {
     'awa': ResNetSemSup
 }
 
+
 def train(model, optimizer, criterion, input_loader, label_loader, scheduler, epoch, num_epoch):
     model.train()
     batch_bar = tqdm(total=len(input_loader), dynamic_ncols=True, leave=False, position=0, desc='Train')
@@ -44,7 +45,7 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
     start = time.time()
 
     pred_list, true_list = [], []
-    
+
     for batch_idx, x in enumerate(input_loader):
         optimizer.zero_grad()
         label_batch = next(label_loader)
@@ -72,7 +73,7 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
 
         if scheduler is not None:
             scheduler.step()
-    
+
     end = time.time()
     batch_bar.close()
     total_loss /= len(input_loader)
@@ -108,14 +109,14 @@ def validate(model, input_loader, label_loader, criterion):
                 loss="{:04f}".format(float(total_loss) / (batch_idx + 1))
             )
             batch_bar.update()
-    
+
     val_acc = accuracy_score(true_list, pred_list)
     batch_bar.close()
     end = time.time()
-    
+
     total_loss /= len(input_loader)
     print('Validation loss: {:.04f}, accuracy: {:.04f}, Time: {:.02f}'.format(
-            total_loss, val_acc, end - start
+        total_loss, val_acc, end - start
     ))
 
     return total_loss, val_acc
@@ -125,11 +126,13 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('--run_test', type=bool, default=False,
-                                    help='True for test, False for train')
+                        help='True for test, False for train')
     parser.add_argument('--ckpt_path', type=str, default='',
-                                    help='Path of checkpoint used for test, only effective when run_test is True')
+                        help='Path of checkpoint used for test, only effective when run_test is True')
     parser.add_argument('--config', type=str, default='./config/cifar/scene1.json',
-                                    help='configuration file to use')
+                        help='configuration file to use')
+    parser.add_argument('--save_dir', type=str, default='',
+                        help='save the ckpt path with specific names')
     args = parser.parse_args()
 
     config_file = args.config
@@ -154,7 +157,7 @@ if __name__ == '__main__':
     model_class = ModelMapping[task]
 
     dataset_manager = dataset_manager_class(
-                        general_args, label_data_args, label_data_args, train_args)
+        general_args, label_data_args, label_data_args, train_args)
     dataset_manager.gen_dataset()
     train_data_loader = dataset_manager.train_dataloader
     train_input_loader, train_label_loader = train_data_loader['input_loader'], \
@@ -164,7 +167,7 @@ if __name__ == '__main__':
     val_input_loader, val_label_loader = val_data_loader['input_loader'], \
                                          iter(val_data_loader['label_loader'])
 
-    model = model_class(train_args, label_model_args,  score_function_args, 'cifar').to(device)
+    model = model_class(train_args, label_model_args, score_function_args, 'cifar').to(device)
 
     num_epochs = train_args['num_epochs']
     lr = optimizer_args['lr']
@@ -176,7 +179,9 @@ if __name__ == '__main__':
 
     # set wandb
     model_id = config["meta"]["ckpt_dir"] + config["meta"]["name"]
-    wandb.init(project="Semantic_Supervision_Impl", entity="saltedfish", name=model_id)
+    if args.run_test:
+        model_id += "_test"
+    wandb.init(project="Semantic_Supervision_Impl_Repeats", entity="saltedfish", name=model_id)
     wandb.config = {
         "learning_rate": lr,
         "epochs": num_epochs,
@@ -195,11 +200,13 @@ if __name__ == '__main__':
             model, val_input_loader, val_label_loader, criterion
         )
         print('Test loss: {}, test acc: {}'.format(test_loss, test_acc))
-        
+        wandb.log({"test loss": test_loss, "test_acc": test_acc, "val loss": val_loss, "val acc": val_acc})
+
     else:
-        ckpt_path = config["meta"]["ckpt_dir"] + config["meta"]["name"]
+        ckpt_path = config["meta"]["ckpt_dir"] + config["meta"]["name"] + "_" + args.save_dir
         for epoch in range(num_epochs):
-            train_loss, train_acc, train_lr = train(model, optimizer, criterion, train_input_loader, train_label_loader, None, epoch, num_epochs)
+            train_loss, train_acc, train_lr = train(model, optimizer, criterion, train_input_loader, train_label_loader,
+                                                    None, epoch, num_epochs)
             val_loss, val_acc = validate(model, val_input_loader, val_label_loader, criterion)
 
             wandb.log({"epoch": epoch, "train loss:": train_loss, "train acc": train_acc, "val loss:": val_loss,
