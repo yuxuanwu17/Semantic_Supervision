@@ -33,7 +33,7 @@
             "train_label_json": "./class_descrs/cifar/combined_cifar100_manual_train.labels",
             "val_label_json": "./class_descrs/cifar/combined_cifar100_manual_val.labels",
             "label_max_len": 128,
-            "num_description": 2
+            "num_description": 20
         },
     "train_args":
         {
