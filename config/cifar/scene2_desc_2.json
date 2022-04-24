@@ -5,7 +5,7 @@
             "task": "cifar",
             "scene": "heldout",
             "ckpt_dir": "./ckpt/",
-            "name": "cifar_semsup_scene2"
+            "name": "cifar_semsup_scene2_desc_2"
         },
     "general_args":
         {
@@ -16,14 +16,17 @@
         },
     "label_model_args":
         {
-            "label_model": "prajjwal1/bert-small"
+            "label_model": "prajjwal1/bert-small",
+            "num_description": 2,
+            "multi_description_aggregation": "concat"
         },
     "label_data_args":
-        {
+        {   
             "label_tokenizer": "prajjwal1/bert-small",
             "train_label_json": "./class_descrs/cifar/combined_cifar100_manual_train.labels",
-            "val_label_json": "./class_descrs/cifar/combined_cifar100_manual_train.labels",
-            "label_max_len": 128
+            "val_label_json": "./class_descrs/cifar/combined_cifar100_manual_val.labels",
+            "label_max_len": 128,
+            "num_description": 2
         },
     "train_args":
         {
