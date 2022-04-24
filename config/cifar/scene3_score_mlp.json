@@ -12,7 +12,9 @@
             "cache_dir": "./data_cache",
             "split_seed": 42,
             "val_size": 0.2,
-            "num_workers": 0
+            "num_workers": 0,
+            "train_level": "fine",
+            "val_level": "coarse"
         },
     "score_function_args":
         {
