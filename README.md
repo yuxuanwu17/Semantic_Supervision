@@ -18,13 +18,13 @@ Configuration is specified in json format. Detailed interpretation of each field
 
 ### Train and validation
 ```shell
-python3 main.py --config [your_path_to_configuration_file]
+python3 main.py --config [your_path_to_configuration_file] --save_dir [repeat_exp_id]
 ```
 
 For example, to run SemSup generalization to unseen task on CIFAR dataset, run 
 
 ```shell
-python3 main.py --config ./config/cifar/scene1.json
+python3 main.py --config ./config/cifar/scene1.json --save_dir rep1
 ```
 
 ### Test

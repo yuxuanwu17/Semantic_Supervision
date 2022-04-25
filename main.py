@@ -178,7 +178,7 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
 
     # set wandb
-    model_id = config["meta"]["ckpt_dir"] + config["meta"]["name"]
+    model_id = config["meta"]["ckpt_dir"] + config["meta"]["name"] + "_" + args.save_dir
     if args.run_test:
         model_id += "_test"
     wandb.init(project="Semantic_Supervision_Impl_Repeats", entity="saltedfish", name=model_id)
