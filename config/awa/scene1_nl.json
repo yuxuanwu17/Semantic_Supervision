@@ -1,11 +1,11 @@
 {
-    "meta": 
+    "meta":
         {
             "dataset": "awa",
             "task": "awa",
             "scene": "base",
             "ckpt_dir": "./ckpt/",
-            "name": "awa_semsup_scene1_json_base"
+            "name": "awa_semsup_scene1_nl_base"
         },
     "general_args":
         {
@@ -21,8 +21,8 @@
     "label_data_args":
         {
             "label_tokenizer": "prajjwal1/bert-small",
-            "train_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
-            "val_label_json":   "./class_descrs/awa/large_files/awa_deep_samp50_perm25_val.labels",
+            "train_label_json": "./class_descrs/awa/google_awa_manual_train.labels",
+            "val_label_json":   "./class_descrs/awa/google_awa_manual_val.labels",
             "label_max_len": 128
         },
     "train_args":

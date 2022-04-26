@@ -5,7 +5,7 @@
             "task": "awa",
             "scene": "heldout",
             "ckpt_dir": "./ckpt/",
-            "name": "awa_semsup_scene2"
+            "name": "awa_semsup_scene2_json_base"
         },
     "general_args":
         {
@@ -22,15 +22,15 @@
         {
             "label_tokenizer": "prajjwal1/bert-small",
             "train_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
-            "val_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
+            "val_label_json":   "./class_descrs/awa/large_files/awa_deep_samp50_perm25_val.labels",
             "label_max_len": 128
         },
     "train_args":
         {
-            "num_epochs": 10,
+            "num_epochs": 20,
             "log_every_n_steps": 1000,
             "train_batch_size": 64,
-            "val_batch_size": 16,
+            "val_batch_size": 5,
             "pretrained_model": true,
             "tune_label_model": true
         },
