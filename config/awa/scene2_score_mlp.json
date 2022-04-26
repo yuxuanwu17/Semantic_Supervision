@@ -3,9 +3,9 @@
         {
             "dataset": "awa",
             "task": "awa",
-            "scene": "base",
+            "scene": "heldout",
             "ckpt_dir": "./ckpt/",
-            "name": "awa_semsup_scene1_json_base"
+            "name": "awa_semsup_scene2_score_mlp_json_base"
         },
     "general_args":
         {
@@ -13,6 +13,13 @@
             "split_seed": 42,
             "val_size": 0.2,
             "num_workers": 0
+        },
+    "score_function_args":
+        {
+            "score_function": "mlp",
+            "mlp_hidden_1": 1024,
+            "mlp_hidden_2": 1024,
+            "mlp_dropout_rate": 0.0
         },
     "label_model_args":
         {
@@ -22,7 +29,7 @@
         {
             "label_tokenizer": "prajjwal1/bert-small",
             "train_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
-            "val_label_json":   "./class_descrs/awa/large_files/awa_deep_samp50_perm25_val.labels",
+            "val_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_val.labels",
             "label_max_len": 128
         },
     "train_args":
