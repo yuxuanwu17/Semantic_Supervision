@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 
+from yaml import parse
+
 from data.base import *
 from data.heldout import *
 from data.superclass import *
@@ -10,6 +12,8 @@ from model.vision import ResNetSemSup
 from torch.optim import AdamW
 import torch
 import torch.nn as nn
+import numpy as np
+import random
 from sklearn.metrics import accuracy_score
 import wandb
 from tqdm import tqdm
@@ -125,6 +129,8 @@ def validate(model, input_loader, label_loader, criterion):
 if __name__ == '__main__':
 
     parser = ArgumentParser()
+    parser.add_argument('--seed', type=int, default=1,
+                        help='Random seed for training')
     parser.add_argument('--run_test', type=bool, default=False,
                         help='True for test, False for train')
     parser.add_argument('--ckpt_path', type=str, default='',
@@ -141,6 +147,12 @@ if __name__ == '__main__':
 
     general_args = config['general_args']
     general_args['run_test'] = args.run_test
+    SEED = args.seed
+    torch.seed(SEED)
+    torch.manual_seed(SEED)
+    np.random.seed(SEED)
+    random.seed(SEED)
+
     label_model_args = config['label_model_args']
     label_data_args = config['label_data_args']
     train_args = config['train_args']
