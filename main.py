@@ -148,7 +148,6 @@ if __name__ == '__main__':
     general_args = config['general_args']
     general_args['run_test'] = args.run_test
     SEED = args.seed
-    torch.seed(SEED)
     torch.manual_seed(SEED)
     np.random.seed(SEED)
     random.seed(SEED)

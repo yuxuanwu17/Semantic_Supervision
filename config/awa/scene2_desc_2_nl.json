@@ -24,7 +24,7 @@
         {   
             "label_tokenizer": "prajjwal1/bert-small",
             "train_label_json": "./class_descrs/awa/google_awa_manual_train.labels",
-            "val_label_json":   "./class_descrs/awa/google_awa_manual_val.labels",
+            "val_label_json":   "./class_descrs/awa/google_awa_manual_train.labels",
             "label_max_len": 128,
             "num_description": 2
         },

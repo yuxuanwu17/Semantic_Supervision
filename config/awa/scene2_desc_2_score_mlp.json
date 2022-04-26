@@ -31,7 +31,7 @@
         {   
             "label_tokenizer": "prajjwal1/bert-small",
             "train_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
-            "val_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_val.labels",
+            "val_label_json": "./class_descrs/awa/large_files/awa_deep_samp50_perm25_train.labels",
             "label_max_len": 128,
             "num_description": 2
         },
