@@ -178,7 +178,9 @@ if __name__ == '__main__':
     val_input_loader, val_label_loader = val_data_loader['input_loader'], \
                                          iter(val_data_loader['label_loader'])
 
-    model = model_class(train_args, label_model_args, score_function_args, 'cifar').to(device)
+    model = model_class(train_args, label_model_args, score_function_args, task).to(device)
+    print('Model:')
+    print(model)
 
     num_epochs = train_args['num_epochs']
     lr = optimizer_args['lr']
