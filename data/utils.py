@@ -10,6 +10,8 @@ from collections import defaultdict
 
 class LabelDataset(IterableDataset):
     '''
+    Iterable dataset that infinitely interates over randomly sampled labels.
+    returns tokenized outputs
         input:
             dataset(DatasetDict)
             class_label(ClassLabel object)
@@ -33,7 +35,7 @@ class LabelDataset(IterableDataset):
     
     def __next__(self):
         '''
-            For each batch, random generate a label description in the format that can be fed into bert model (followed by a forward by label model).
+            For each batch, randomly generate a label description in the format that can be fed into bert model (followed by a forward by label model).
         '''
         bert_input = defaultdict(list)
         for i in range(self.num_classes):

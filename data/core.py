@@ -6,9 +6,10 @@ import pstats
 from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from datasets import ClassLabel
+from datasets import ClassLabel, load_dataset, concatenate_datasets, load_from_disk
 from data.utils import LabelDatasetManager
 from data.configs import *
+from transformers import AutoTokenizer
 
 class Cifar100DatasetManagerCore:
     def __init__(
@@ -222,3 +223,133 @@ class AWADatasetManagerCore:
             )
         }
         
+
+class NewsgroupsDatasetManagerCore:
+    def __init__(
+        self, general_args, input_model_args, input_data_args, label_model_args, label_data_args, train_args
+    ):
+        self.general_args = general_args
+        self.input_model_args = input_model_args
+        self.input_data_args = input_data_args
+        self.label_model_args = label_model_args
+        self.label_data_args = label_data_args
+        self.train_args = train_args
+
+        # load label meta
+        self.classes = NewsgroupsAllClasses
+        self.cache_dir = self.general_args['cache_dir']
+        
+        self.num_description = label_data_args['num_description'] if 'num_description' in label_data_args else 1
+        # self.multi_description_aggregation = label_data_args['multi_description_aggregation'] if 'multi_description_aggregation' in label_data_args else 'concat'
+        
+
+        # input dataset
+        self.input_dataset = {
+            'train': None, 
+            'val': None
+        }
+
+        # label dataset
+        self.label_dataset = {
+            'train': None,
+            'val': None
+        }
+
+    def init_label_config(self):
+        '''
+            initialize train_class_label and val_class_label
+        '''
+        raise NotImplementedError
+
+    def _configure_dataset(self, dataset, tokenizer, class_name: str):
+        """Add labels to the newsgroups dataset and tokenize it"""
+        dataset = dataset.map(
+            lambda x: {"labels": len(x["text"]) * [class_name]}, batched=True
+        )
+        dataset = dataset.map(
+            lambda x: tokenizer(
+                x["text"],
+                truncation=True,
+                padding="max_length",
+                max_length=self.input_data_args['input_max_len'],
+            ),
+            batched=True,
+        )
+        return dataset
+
+    def prepare_input_dataset(self):
+        if Path(self.dataset_cache_path).exists():
+            return
+        # input dataloader
+        tokenizer = AutoTokenizer.from_pretrained(self.input_data_args['input_tokenizer'])
+        dataset_list = []
+        for c in self.classes:
+            dataset_list.append(
+                self._configure_dataset(
+                    load_dataset(
+                        "newsgroup", f"{self.general_args['variant']}_{c}", split="train"
+                    ),
+                    tokenizer,
+                    class_name=c,
+                )
+            )
+        combined_datasets = concatenate_datasets(dataset_list)
+        combined_datasets.save_to_disk(self.dataset_cache_path)
+
+    def gen_input_dataset(self):
+        raise NotImplementedError
+    
+    def gen_label_dataset(self):
+        # create label dataset manager
+        self.label_dataset_manager = LabelDatasetManager(
+            cache_dir=self.cache_dir, label_data_args=self.label_data_args,
+            train_classes=self.train_class_label, val_classes=self.val_class_label,
+            num_description=self.num_description
+        )
+        # generate label dataset
+        self.label_dataset_manager.gen_label_dataset()
+        self.label_dataset = self.label_dataset_manager.label_dataset
+    
+    def gen_dataset(self):
+        self.gen_input_dataset()
+        self.gen_label_dataset()
+
+        self.dataset_hash = self.label_dataset_manager.hash_func(
+            (
+                "newsgroups",
+                sorted(list(self.classes)),
+                self.input_max_len,
+                self.split_seed,
+                self.test_size,
+                self.val_size,
+                self.variant,
+            )
+        )
+        self.dataset_cache_path = str(
+            Path(self.cache_dir).joinpath("ng_" + self.dataset_hash)
+        ) 
+        
+        # now we have everthing is in self.input_dataset and self.label_dataset
+        self.train_dataloader = {
+            'input_loader': DataLoader(
+                self.input_dataset['train'],
+                batch_size=self.train_args['train_batch_size'],
+                num_workers=self.general_args['num_workers'],
+                shuffle=True
+            ),
+            'label_loader': DataLoader(
+                self.label_dataset['train'], num_workers=1
+            )
+        }
+
+        self.val_dataloader = {
+            'input_loader': DataLoader(
+                self.input_dataset['val'],
+                batch_size=self.train_args['val_batch_size'],
+                num_workers=self.general_args['num_workers'],
+                shuffle=False
+            ),
+            'label_loader': DataLoader(
+                self.label_dataset['val'], num_workers=1
+            )
+        }

@@ -1,6 +1,7 @@
 import pickle 
 from pathlib import Path
 
+import datasets
 from datasets import ClassLabel
 from torch.utils.data import Dataset, DataLoader, Subset
 import torchvision
@@ -125,4 +126,78 @@ class AWADatasetManager(AWADatasetManagerCore):
         # notice that once the seed is fixed, each time the train_test_split generates the same results
         self.input_dataset['val'] = Subset(val_dataset, test_idx) if self.general_args['run_test'] \
                                         else Subset(val_dataset, val_idx)
+
+class NewsgroupsDatasetManager(NewsgroupsDatasetManagerCore):
+    '''
+        input:
+            general_args(dict): 
+                cache_dir: str
+                split_seed: int
+                val_size: float
+                num_workers: int
+                run_test: bool
+
+            input_model_args(dict):
+                input_model: str
+
+            input_data_args(dict):
+                input_tokenizer: str
+                input_max_len: int 
+            
+            label_model_args(dict):
+                label_model: str
+
+            label_data_args(dict):
+                label_tokenizer: str
+                train_label_json: str
+                val_label_json: str
+                label_max_len: int
+
+            train_args(dict):
+                num_epochs: int
+                log_every_n_steps: int
+                train_batch_size: int
+                val_batch_size: int
+                pretrained_model: bool
+                tune_label_model: bool
+    '''
+    def __init__(
+        self, 
+        general_args,
+        input_model_args, 
+        input_data_args, 
+        label_model_args, label_data_args,
+        train_args
+    ):
+        super().__init__(
+            general_args,
+            input_model_args,
+            input_data_args,
+            label_model_args, label_data_args,
+            train_args
+        )
+        self.init_label_config()
+    
+    def init_label_config(self):
+        self.train_classes = self.classes
+        self.val_classes = self.classes
         
+        self.train_class_label = ClassLabel(names=self.train_classes)
+        self.val_class_label = ClassLabel(names=self.val_classes)
+
+    def gen_input_dataset(self):
+        self.prepare_input_dataset()
+        dataset = load_from_disk(self.dataset_cache_path)
+        
+        # make train-test split
+        train_test = dataset.train_test_split(
+            test_size=self.general_args["test_size"], seed=self.general_args["split_seed"]
+        )
+
+        # split train set into train-val
+        train_val = train_test["train"].train_test_split(
+            test_size=self.general_args["val_size"], seed=self.general_args["split_seed"]
+        )
+
+        self.input_dataset['train'] = train_val["train"]
+        self.input_dataset['val'] = train_test["test"] if self.general_args['run_test'] else train_val["test"]

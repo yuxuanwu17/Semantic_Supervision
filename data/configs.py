@@ -265,3 +265,76 @@ AWA_TEST_CLASSES = (
     "giraffe",
     "bobcat",
 )
+
+NewsgroupsAllClasses = (
+    "alt.atheism",
+    "comp.graphics",
+    "comp.os.ms-windows.misc",
+    "comp.sys.ibm.pc.hardware",
+    "comp.sys.mac.hardware",
+    "comp.windows.x",
+    "misc.forsale",
+    "rec.autos",
+    "rec.motorcycles",
+    "rec.sport.baseball",
+    "rec.sport.hockey",
+    "sci.crypt",
+    "sci.electronics",
+    "sci.med",
+    "sci.space",
+    "soc.religion.christian",
+    "talk.politics.guns",
+    "talk.politics.mideast",
+    "talk.politics.misc",
+    "talk.religion.misc",
+)
+
+NewsgroupsHeldoutDataConfig = {
+    'val_names': (
+        "alt.atheism",
+        "comp.sys.mac.hardware",
+        "rec.motorcycles",
+        "sci.electronics",
+    )
+    'test_names': (
+        "comp.os.ms-windows.misc",
+        "rec.sport.hockey",
+        "sci.space",
+        "talk.politics.guns",
+    )
+}
+
+NewsgroupsSuperClass2Classes = {
+    "comp": [
+        "comp.graphics",
+        "comp.os.ms-windows.misc",
+        "comp.sys.ibm.pc.hardware",
+        "comp.sys.mac.hardware",
+        "comp.windows.x"
+    ],
+    "rec": [
+        "rec.autos",
+        "rec.motorcycles",
+        "rec.sport.baseball",
+        "rec.sport.hockey",
+    ],
+    "sci": [
+        "sci.crypt",
+        "sci.electronics",
+        "sci.med",
+        "sci.space",
+    ],
+    "politics": [
+        "talk.politics.guns",
+        "talk.politics.mideast",
+        "talk.politics.misc",
+    ],
+    "religion": [
+        "soc.religion.christian",
+        "talk.religion.misc",
+        "alt.atheism",
+    ],
+    "misc": [
+        "misc.forsale",
+    ],
+}

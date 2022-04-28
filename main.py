@@ -32,12 +32,18 @@ DatasetManagerMapping = {
     'awa': {
         'base': AWADatasetManager,
         'heldout': AWAHeldoutDatasetManager
+    },
+    'newsgroups': {
+        'base': NewsgroupsDatasetManager,
+        'heldout': NewsgroupsHeldoutDatasetManager,
+        'superclass': NewsgroupsSuperClassDatasetManager
     }
 }
 
 ModelMapping = {
     'cifar': ResNetSemSup,
-    'awa': ResNetSemSup
+    'awa': ResNetSemSup,
+    'newsgroups': BertSemSup
 }
 
 
@@ -152,6 +158,8 @@ if __name__ == '__main__':
     np.random.seed(SEED)
     random.seed(SEED)
 
+    input_model_args = config['input_model_args'] if 'input_model_args' in config else None
+    input_data_args = config['input_data_args'] if 'input_data_args' in config else None
     label_model_args = config['label_model_args']
     label_data_args = config['label_data_args']
     train_args = config['train_args']
@@ -167,8 +175,12 @@ if __name__ == '__main__':
 
     model_class = ModelMapping[task]
 
-    dataset_manager = dataset_manager_class(
-        general_args, label_data_args, label_data_args, train_args)
+    if dataset == 'newsgroups':
+        dataset_manager = dataset_manager_class(
+            general_args, input_model_args, input_data_args, label_data_args, label_data_args, train_args)
+    else:
+        dataset_manager = dataset_manager_class(
+            general_args, label_data_args, label_data_args, train_args)
     dataset_manager.gen_dataset()
     train_data_loader = dataset_manager.train_dataloader
     train_input_loader, train_label_loader = train_data_loader['input_loader'], \
@@ -177,8 +189,10 @@ if __name__ == '__main__':
     val_data_loader = dataset_manager.val_dataloader
     val_input_loader, val_label_loader = val_data_loader['input_loader'], \
                                          iter(val_data_loader['label_loader'])
-
-    model = model_class(train_args, label_model_args, score_function_args, task).to(device)
+    if task == 'newsgroups':
+        model = model_class(train_args, input_model_args, label_model_args, score_function_args, task).to(device)
+    else:
+        model = model_class(train_args, label_model_args, score_function_args, task).to(device)
     print('Model:')
     print(model)
 
