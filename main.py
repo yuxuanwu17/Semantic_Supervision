@@ -177,10 +177,10 @@ if __name__ == '__main__':
 
     if dataset == 'newsgroups':
         dataset_manager = dataset_manager_class(
-            general_args, input_model_args, input_data_args, label_data_args, label_data_args, train_args)
+            general_args, input_model_args, input_data_args, label_model_args, label_data_args, train_args)
     else:
         dataset_manager = dataset_manager_class(
-            general_args, label_data_args, label_data_args, train_args)
+            general_args, label_model_args, label_data_args, train_args)
     dataset_manager.gen_dataset()
     train_data_loader = dataset_manager.train_dataloader
     train_input_loader, train_label_loader = train_data_loader['input_loader'], \
