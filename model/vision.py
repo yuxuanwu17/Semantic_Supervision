@@ -86,8 +86,8 @@ class ResNetSemSup(nn.Module):
 
             label_rep = label_rep.t() # (label_model_hidden_size, n_class)
 
-        print('Label size:', label_rep.shape)
-        raise
+        # print('Label size:', label_rep.shape)
+
         if self.score_function == 'base':
             logits = input_rep @ label_rep
         else:

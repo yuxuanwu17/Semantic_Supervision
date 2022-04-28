@@ -134,6 +134,7 @@ class AWADatasetManagerCore:
         # load label meta
         self.classes = AWA_ALL_CLASSES
         self.cache_dir = self.general_args['cache_dir']
+        self.num_description = label_data_args['num_description'] if 'num_description' in label_data_args else 1
         self.dataset_dir = Path(self.cache_dir).joinpath("Animals_with_Attributes2")
         self.img_root = self.dataset_dir.joinpath("JPEGImages")
 
@@ -184,7 +185,8 @@ class AWADatasetManagerCore:
         self.label_dataset_manager = LabelDatasetManager(
             cache_dir=self.cache_dir, label_data_args=self.label_data_args,
             train_classes=self.train_class_label,
-            val_classes=self.val_class_label
+            val_classes=self.val_class_label,
+            num_description=self.num_description
         )
         
         # generate label dataset
