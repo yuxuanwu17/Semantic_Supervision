@@ -238,6 +238,8 @@ class NewsgroupsDatasetManagerCore:
         # load label meta
         self.classes = NewsgroupsAllClasses
         self.cache_dir = self.general_args['cache_dir']
+
+        self.dataset_cache_path = str(None)
         
         self.num_description = label_data_args['num_description'] if 'num_description' in label_data_args else 1
         # self.multi_description_aggregation = label_data_args['multi_description_aggregation'] if 'multi_description_aggregation' in label_data_args else 'concat'
@@ -311,7 +313,6 @@ class NewsgroupsDatasetManagerCore:
         self.label_dataset = self.label_dataset_manager.label_dataset
     
     def gen_dataset(self):
-        self.gen_input_dataset()
         self.gen_label_dataset()
 
         self.dataset_hash = self.label_dataset_manager.hash_func(
@@ -327,7 +328,9 @@ class NewsgroupsDatasetManagerCore:
         )
         self.dataset_cache_path = str(
             Path(self.cache_dir).joinpath("ng_" + self.dataset_hash)
-        ) 
+        )
+
+        self.gen_input_dataset()
         
         # now we have everthing is in self.input_dataset and self.label_dataset
         self.train_dataloader = {

@@ -295,7 +295,7 @@ NewsgroupsHeldoutDataConfig = {
         "comp.sys.mac.hardware",
         "rec.motorcycles",
         "sci.electronics",
-    )
+    ),
     'test_names': (
         "comp.os.ms-windows.misc",
         "rec.sport.hockey",
