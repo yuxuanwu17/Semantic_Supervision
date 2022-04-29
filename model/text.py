@@ -64,9 +64,9 @@ class BertSemSup(nn.Module):
             
     def forward(self, batch):
         # batch: (x, label)
-        input_data, label_batch = batch
+        input_batch, label_batch = batch
         
-        input_rep = self.input_model(input_data).pooler_output # (batch_size, hidden_size)
+        input_rep = self.input_model(**input_batch).pooler_output # (batch_size, hidden_size)
         input_rep = self.projection(input_rep)
 
         label_batch = {k: v.squeeze(0) for k, v in label_batch.items()}

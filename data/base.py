@@ -188,6 +188,14 @@ class NewsgroupsDatasetManager(NewsgroupsDatasetManagerCore):
     def gen_input_dataset(self):
         self.prepare_input_dataset()
         dataset = load_from_disk(self.dataset_cache_path)
+
+        dataset = dataset.map(
+            lambda x: {"labels": self.train_class_label.str2int(x["labels"])}
+        )
+        dataset.set_format(
+            type="torch",
+            columns=["input_ids", "token_type_ids", "attention_mask", "labels"],
+        )
         
         # make train-test split
         train_test = dataset.train_test_split(

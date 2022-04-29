@@ -244,7 +244,6 @@ class NewsgroupsDatasetManagerCore:
         self.num_description = label_data_args['num_description'] if 'num_description' in label_data_args else 1
         # self.multi_description_aggregation = label_data_args['multi_description_aggregation'] if 'multi_description_aggregation' in label_data_args else 'concat'
         
-
         # input dataset
         self.input_dataset = {
             'train': None, 
@@ -319,11 +318,11 @@ class NewsgroupsDatasetManagerCore:
             (
                 "newsgroups",
                 sorted(list(self.classes)),
-                self.input_max_len,
-                self.split_seed,
-                self.test_size,
-                self.val_size,
-                self.variant,
+                self.input_data_args['input_max_len'],
+                self.general_args['split_seed'],
+                self.general_args['test_size'],
+                self.general_args['val_size'],
+                self.general_args['variant'],
             )
         )
         self.dataset_cache_path = str(

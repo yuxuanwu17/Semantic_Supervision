@@ -59,10 +59,17 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
 
     for batch_idx, x in enumerate(input_loader):
         optimizer.zero_grad()
-        label_batch = next(label_loader)
-        input_batch, y = x
-        input_batch = input_batch.to(device)
+        if len(x) == 2:
+            input_batch, y = x
+            input_batch = input_batch.to(device)
+        else:
+            input_batch = {'attention_mask':x['attention_mask'], 
+                            'input_ids':x['input_ids'], 
+                            'token_type_ids':x['token_type_ids']}
+            input_batch = {k: v.to(device) for k, v in input_batch.items()}
+            y = input_batch["labels"]
         y = y.to(device)
+        label_batch = next(label_loader)
         label_batch = {k: v.to(device) for k, v in label_batch.items()}
         logits = model((input_batch, label_batch))
         pred = torch.argmax(logits, axis=1)
@@ -105,10 +112,17 @@ def validate(model, input_loader, label_loader, criterion):
         total_loss = 0
         pred_list, true_list = [], []
         for batch_idx, x in enumerate(input_loader):
-            label_batch = next(label_loader)
-            input_batch, y = x
-            input_batch = input_batch.to(device)
+            if len(x) == 2:
+                input_batch, y = x
+                input_batch = input_batch.to(device)
+            else:
+                input_batch = {'attention_mask':x['attention_mask'], 
+                                'input_ids':x['input_ids'], 
+                                'token_type_ids':x['token_type_ids']}
+                input_batch = {k: v.to(device) for k, v in input_batch.items()}
+                y = input_batch["labels"]
             y = y.to(device)
+            label_batch = next(label_loader)
             label_batch = {k: v.to(device) for k, v in label_batch.items()}
             logits = model((input_batch, label_batch))
             pred = torch.argmax(logits, axis=1)
