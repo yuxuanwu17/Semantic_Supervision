@@ -37,7 +37,7 @@ DatasetManagerMapping = {
     'newsgroups': {
         'base': NewsgroupsDatasetManager,
         'heldout': NewsgroupsHeldoutDatasetManager,
-        'superclass': NewsgroupsSuperClassDatasetManager
+        # 'superclass': NewsgroupsSuperClassDatasetManager
     }
 }
 

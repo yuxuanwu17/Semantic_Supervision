@@ -1,0 +1,54 @@
+{
+    "meta":
+        {
+            "dataset": "newsgroups",
+            "task": "newsgroups",
+            "scene": "heldout",
+            "ckpt_dir": "./ckpt/",
+            "name": "newsgroups_semsup_scene2"
+        },
+    "general_args":
+        {
+            "cache_dir": "./data_cache",
+            "split_seed": 42,
+            "val_size": 0.2,
+            "test_size": 0.2,
+            "variant": "18828",
+            "num_workers": 0
+        },
+    "input_model_args":
+        {
+            "input_model": "prajjwal1/bert-small"
+        },
+    "input_data_args":
+        {
+            "input_tokenizer": "prajjwal1/bert-small",
+            "input_max_len": 512
+        },
+    "label_model_args":
+        {
+            "label_model": "prajjwal1/bert-small"
+        },
+    "label_data_args": 
+        {
+            "label_tokenizer": "prajjwal1/bert-small",
+            "train_label_json": "./class_descrs/newsgroups/combined_ng_manual_train.labels",
+            "val_label_json": "./class_descrs/newsgroups/combined_ng_manual_train.labels",
+            "label_max_len": 128
+        },
+    "train_args":
+        {
+            "num_epochs": 10,
+            "log_every_n_steps": 1000,
+            "train_batch_size": 64,
+            "val_batch_size": 5,
+            "pretrained_model": true,
+            "tune_label_model": true
+        },
+    "optimizer_args":
+        {
+            "lr": 2e-5,
+            "adam_epsilon": 1e-8,
+            "weight_decay": 0.01
+        }
+}
