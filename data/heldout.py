@@ -169,17 +169,14 @@ class NewsgroupsHeldoutDatasetManager(NewsgroupsDatasetManagerCore):
         loaded_dataset = load_from_disk(self.dataset_cache_path)
         dataset = DatasetDict()
 
-        dataset["train"] = loaded_dataset["train"].filter(
+        dataset["train"] = loaded_dataset.filter(
             lambda x: x["labels"] in self.train_class_label.names
         )
-        self.input_dataset['train'] = dataset["train"].map(
+        dataset["train"] = dataset["train"].map(
             lambda x: {"labels": self.train_class_label.str2int(x["labels"])}
         )
-
-        # we can pull from the larger train set, because the val/test classes are different
-        split = "test" if self.general_args['run_test'] else "train"
         
-        dataset["val"] = loaded_dataset[split].filter(
+        dataset["val"] = loaded_dataset.filter(
             lambda x: x["labels"] in self.val_class_label.names
         ) 
         dataset["val"] = dataset["val"].map(
@@ -189,7 +186,6 @@ class NewsgroupsHeldoutDatasetManager(NewsgroupsDatasetManagerCore):
             type="torch",
             columns=["input_ids", "token_type_ids", "attention_mask", "labels"],
         )
-        self.dataset = dataset
 
         self.input_dataset['train'] = dataset["train"]
         self.input_dataset['val'] = dataset["val"]
