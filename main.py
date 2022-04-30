@@ -37,7 +37,7 @@ DatasetManagerMapping = {
     'newsgroups': {
         'base': NewsgroupsDatasetManager,
         'heldout': NewsgroupsHeldoutDatasetManager,
-        # 'superclass': NewsgroupsSuperClassDatasetManager
+        'superclass': NewsgroupsSuperClassDatasetManager
     }
 }
 
@@ -59,10 +59,10 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
 
     for batch_idx, x in enumerate(input_loader):
         optimizer.zero_grad()
-        if len(x) == 2:
+        if len(x) == 2: # cifar / awa
             input_batch, y = x
             input_batch = input_batch.to(device)
-        else:
+        else: # newsgroups
             input_batch = {'attention_mask':x['attention_mask'], 
                             'input_ids':x['input_ids'], 
                             'token_type_ids':x['token_type_ids']}
@@ -96,7 +96,6 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
     batch_bar.close()
     total_loss /= len(input_loader)
     accuracy = accuracy_score(true_list, pred_list)
-
     print('Epoch: {}/{}: Train Loss: {:.04f}, Accuracy: {:.04f}, Learning Rate: {:.04f}, Total time: {:.02f}'.format(
         epoch + 1, num_epoch, total_loss, accuracy, optimizer.param_groups[0]['lr'], end - start
     ))
@@ -112,10 +111,10 @@ def validate(model, input_loader, label_loader, criterion):
         total_loss = 0
         pred_list, true_list = [], []
         for batch_idx, x in enumerate(input_loader):
-            if len(x) == 2:
+            if len(x) == 2: # cifar / awa
                 input_batch, y = x
                 input_batch = input_batch.to(device)
-            else:
+            else: # newsgroups
                 input_batch = {'attention_mask':x['attention_mask'], 
                                 'input_ids':x['input_ids'], 
                                 'token_type_ids':x['token_type_ids']}

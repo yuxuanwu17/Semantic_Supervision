@@ -39,7 +39,7 @@ python3 main.py --config [your_path_fo_configuration_file]] --run_test True --ck
     "meta": 
         {
             "dataset": dataset, one of "cifar", "awa" and "ng"
-            "task": input encoding model, "cifar" and "awa" will use ResNetSemSup, "ng" will use Bert model (todo)
+            "task": input encoding model, "cifar" and "awa" will use ResNetSemSup, "ng" will use BertSemSup
             "scene": one of "base", "heldout", and "superclass"
             "ckpt_dir": checkpoint directory
             "name": case name for checkpoint save
@@ -50,6 +50,15 @@ python3 main.py --config [your_path_fo_configuration_file]] --run_test True --ck
             "split_seed": seed in train/validation/test division
             "val_size": validation size
             "num_workers": 0
+        },
+    "input_model_args": # only applicable to newsgroups
+        {
+            "input_model": "prajjwal1/bert-small" 
+        },
+    "input_data_args": # only applicable to newsgroups
+        {
+            "input_tokenizer": "prajjwal1/bert-small",
+            "input_max_len": 512
         },
     "label_model_args":
         {

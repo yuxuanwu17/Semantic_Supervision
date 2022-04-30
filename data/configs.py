@@ -338,3 +338,6 @@ NewsgroupsSuperClass2Classes = {
         "misc.forsale",
     ],
 }
+
+NewsgroupsValSuperclasses = ("rec", "religion")
+NewsgroupsTestSuperclasses = ("comp", "sci", "politics")

@@ -2,7 +2,7 @@ from ast import Sub
 import pickle 
 from pathlib import Path
 
-from datasets import ClassLabel
+from datasets import ClassLabel, DatasetDict
 from numpy import DataSource
 from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision.datasets.vision import StandardTransform
@@ -11,7 +11,7 @@ from torchvision import transforms
 from sklearn.model_selection import train_test_split
 
 from data.utils import LabelDatasetManager
-from data.core import Cifar100DatasetManagerCore
+from data.core import *
 from data.configs import *
 
 class Cifar100DSuperClassDatasetManager(Cifar100DatasetManagerCore):
@@ -126,6 +126,98 @@ class Cifar100DSuperClassDatasetManager(Cifar100DatasetManagerCore):
             
             self.input_dataset['val'] = val_dataset
 
+
+class NewsgroupsSuperClassDatasetManager(NewsgroupsDatasetManagerCore):
+    def __init__(
+        self, 
+        general_args,
+        input_model_args, 
+        input_data_args, 
+        label_model_args, label_data_args,
+        train_args
+    ):
+        super().__init__(
+            general_args,
+            input_model_args,
+            input_data_args,
+            label_model_args, label_data_args,
+            train_args
+        )
+        self.train_level = self.general_args['train_level']
+        self.val_level = self.general_args['val_level']
+
+        self.classes_to_superclass = {
+            x: k for k, v in NewsgroupsSuperClass2Classes.items() for x in v
+        }
+        self.init_label_config()
+    
+    def init_label_config(self):
+        self.superclasses = tuple(list(NewsgroupsValSuperclasses) + list(NewsgroupsTestSuperclasses))
+        self.val_superclasses = NewsgroupsTestSuperclasses if self.general_args['run_test'] \
+                                else NewsgroupsValSuperclasses
+        self.train_classes = self.classes if self.train_level == 'fine' else self.superclasses
+        self.val_classes = self.classes if self.val_level == 'fine' else self.val_superclasses
+
+        self.train_class_label = ClassLabel(names=self.train_classes)
+        self.val_class_label = ClassLabel(names=self.val_classes)
+
+    def gen_input_dataset(self):
+        self.prepare_input_dataset()
+        loaded_dataset = load_from_disk(self.dataset_cache_path)
+        dataset = DatasetDict()
+        
+        # make train-test split
+        train_test = loaded_dataset.train_test_split(
+            test_size=self.general_args["test_size"], seed=self.general_args["split_seed"]
+        )
+
+        # split train set into train-val
+        train_val = train_test["train"].train_test_split(
+            test_size=self.general_args["val_size"], seed=self.general_args["split_seed"]
+        )
+
+        dataset['train'] = train_val["train"]
+        dataset['val'] = train_test["test"] if self.general_args['run_test'] else train_val["test"]
+
+        if self.train_level == "coarse":
+            dataset["train"] = dataset['train'].filter(
+                lambda x: self.class_to_superclass[x["labels"]] in self.train_class_label.names
+            )
+            dataset["train"] = dataset["train"].map(
+                lambda x: {
+                    "labels": self.train_class_label.str2int(
+                        self.classes_to_superclass[x["labels"]]
+                    )
+                }
+            )
+        else:
+            dataset["train"] = dataset['train'].map(
+                lambda x: {"labels": self.train_class_label.str2int(x["labels"])}
+            )
+
+        if self.val_level == "coarse":
+            dataset["val"] = dataset["val"].filter(
+                lambda x: self.classes_to_superclass[x["labels"]] in self.val_class_label.names
+            )
+            dataset["val"] = dataset["val"].map(
+                lambda x: {
+                    "labels": self.val_class_label.str2int(
+                        self.classes_to_superclass[x["labels"]]
+                    )
+                }
+            )
+        else:
+            dataset["val"] = dataset["val"].map(
+                lambda x: {"labels": self.val_class_label.str2int(x["labels"])}
+            )
+
+        dataset.set_format(
+            type="torch",
+            columns=["input_ids", "token_type_ids", "attention_mask", "labels"],
+        )
+
+        self.input_dataset['train'] = dataset["train"]
+        self.input_dataset['val'] = dataset["val"]
 
     
         
