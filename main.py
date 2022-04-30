@@ -67,7 +67,7 @@ def train(model, optimizer, criterion, input_loader, label_loader, scheduler, ep
                             'input_ids':x['input_ids'], 
                             'token_type_ids':x['token_type_ids']}
             input_batch = {k: v.to(device) for k, v in input_batch.items()}
-            y = input_batch["labels"]
+            y = x['labels']
         y = y.to(device)
         label_batch = next(label_loader)
         label_batch = {k: v.to(device) for k, v in label_batch.items()}
@@ -120,7 +120,7 @@ def validate(model, input_loader, label_loader, criterion):
                                 'input_ids':x['input_ids'], 
                                 'token_type_ids':x['token_type_ids']}
                 input_batch = {k: v.to(device) for k, v in input_batch.items()}
-                y = input_batch["labels"]
+                y = x['labels']
             y = y.to(device)
             label_batch = next(label_loader)
             label_batch = {k: v.to(device) for k, v in label_batch.items()}
