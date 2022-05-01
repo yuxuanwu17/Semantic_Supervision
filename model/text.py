@@ -42,7 +42,7 @@ class BertSemSup(nn.Module):
         # score function args
         self.score_function = score_function_args['score_function'] if score_function_args is not None else 'base'
 
-        self.projection = nn.Linear(512, 512, bias=False)
+        self.projection = nn.Linear(self.label_model.config.hidden_size, self.label_model_hidden, bias=False)
         
         if self.score_function == 'mlp':
             self.linear_hidden_1 = score_function_args['mlp_hidden_1']
