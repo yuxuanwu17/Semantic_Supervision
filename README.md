@@ -2,9 +2,9 @@
 
 ## Code Structure
 ### Environment preparation
-- download.sh - download class description 
-- init.py - download dataset 
-- setup.py - install required packages
+- download.sh - *download class description* 
+- init.py - *download dataset* 
+- setup.py - *install required packages*
 
 ### Code file structure
 - **main.py**
