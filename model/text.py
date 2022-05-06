@@ -53,7 +53,6 @@ class BertSemSup(nn.Module):
                                             nn.Linear(2 * self.label_model_hidden, self.linear_hidden_1),
                                             nn.ReLU(),
                                             nn.Dropout(self.linear_dropout),
-                                            nn.ReLU(),
                                             nn.Linear(self.linear_hidden_1, self.linear_hidden_2),
                                             nn.ReLU(),
                                             nn.Dropout(self.linear_dropout),
