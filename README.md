@@ -7,19 +7,19 @@
 - setup.py - install required packages
 
 ### Code file structure
-- main.py
-- model 
+- **main.py**
+- **model** 
     - text.py - NLP task model
     - vision.py - CV task model
     - utils.py
-- data
+- **data**
     - core.py - core dataloader
     - base.py - dataloader for scenario 1
     - heldout.py - dataloader for scenario 2
     - superclass.py - dataloader for scenario 3
     - configs.py - meta class information and split
     - utils.py
-- config 
+- **config** 
     - awa
     - cifar
     - newsgroups
