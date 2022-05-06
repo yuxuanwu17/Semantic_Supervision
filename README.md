@@ -118,3 +118,7 @@ python3 main.py --config [your_path_fo_configuration_file]] --run_test True --ck
         }
 }
 ```
+### Reference
+    Austin W Hanjie, Ameet Deshpande, and Karthik Narasimhan. 2022. Semantic Supervision: Enabling
+    Generalization over Output Spaces. arXiv preprint arXiv:2202.13100 (2022).
+    https://github.com/princeton-nlp/semsup
