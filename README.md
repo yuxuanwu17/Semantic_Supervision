@@ -2,22 +2,22 @@
 
 ## Code Structure
 ### Environment preparation
-- download.sh - *download class description* 
-- init.py - *download dataset* 
-- setup.py - *install required packages*
+- download.sh - download class description 
+- init.py - download dataset 
+- setup.py - install required packages
 
 ### Code file structure
 - **main.py**
 - **model** 
-    - text.py - *NLP task model*
-    - vision.py - *CV task model*
+    - text.py - NLP task 
+    - vision.py - CV task 
     - utils.py
 - **data**
-    - core.py - *core dataloader*
-    - base.py - *dataloader for scenario 1*
-    - heldout.py - *dataloader for scenario 2*
-    - superclass.py - *dataloader for scenario 3*
-    - configs.py - *meta class information and split*
+    - core.py - core dataloader
+    - base.py - scenario 1
+    - heldout.py - scenario 2
+    - superclass.py - scenario 3
+    - configs.py - meta class information and split
     - utils.py
 - **config** 
     - awa
