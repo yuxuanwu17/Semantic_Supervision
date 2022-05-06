@@ -88,3 +88,32 @@ python3 main.py --config [your_path_fo_configuration_file]] --run_test True --ck
 }
 ```
 
+## Code Structure
+### Environment preparation
+- download.sh - download class description 
+- init.py - download dataset 
+- setup.py - install required packages
+
+### Code file structure
+- main.py
+- model 
+    - text.py - NLP task model
+    - vision.py - CV task model
+    - utils.py
+- data
+    - core.py - core dataloader
+    - base.py - dataloader for scenario 1
+    - heldout.py - dataloader for scenario 2
+    - superclass.py - dataloader for scenario 3
+    - configs.py - meta class information and split
+    - utils.py
+- config 
+    - awa
+    - cifar
+    - newsgroups
+
+### Code design
+- **main.py** - main training entrance. Detailed instructions are provided above.
+- **model** - contains models for the CV task and the NLP task. Each model feeds inputs to the ResNet/Bert model and feeds label descriptions to the Bert model. 
+- **data** - contains customized data loaders. The data loader conducts data loading, preprocessing and transforming for input data and label descriptions. Each scenario uses a different customized data loader, which extends from the base data loader in core.py.
+- **config** - contains training configurations for different datasets and different scenarios
