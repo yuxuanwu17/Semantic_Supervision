@@ -1,5 +1,8 @@
 # Semantic_Supervision
 
+## Video demonstration
+https://www.youtube.com/watch?v=AV2wl0rSbK8&t=33s
+
 ## Code Structure
 ### Environment preparation
 - download.sh - download class description 
